@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Senior Home Mods</string>
+    <string name="title_activity_main">Senior Home Mods</string>
+    <string name="package_name">com.seniorhomemods.app</string>
+    <string name="custom_url_scheme">com.seniorhomemods.app</string>
+    <string name="camera_permission_rationale">Senior Home Mods needs camera access so you can take a clear photo of your ID or home grant documents.</string>
+    <string name="photo_permission_rationale">Senior Home Mods needs access to your photos so you can select and upload existing documents.</string>
+</resources>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { TopBar } from "@/components/ui/TopBar";
 import { Logo } from "@/components/ui/Logo";
@@ -9,20 +9,46 @@ import { TextField } from "@/components/ui/TextField";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { SecondaryButton } from "@/components/ui/SecondaryButton";
 import { TextLink } from "@/components/ui/TextLink";
+import {
+  nativeOrWebGoogleSignIn,
+  sendSignInEmail,
+  checkAndCompleteEmailLink,
+  setupAppLinksListener,
+} from "@/lib/auth";
 
 export default function SignInPage() {
   const router = useRouter();
   const [identifier, setIdentifier] = useState("mary.johnson@email.com");
   const [isSent, setIsSent] = useState(false);
 
-  const handleSendLink = () => {
+  useEffect(() => {
+    checkAndCompleteEmailLink().then((res) => {
+      if (res.success) {
+        router.push("/home");
+      }
+    });
+
+    const cleanup = setupAppLinksListener((url) => {
+      checkAndCompleteEmailLink(url).then((res) => {
+        if (res.success) {
+          router.push("/home");
+        }
+      });
+    });
+
+    return cleanup;
+  }, [router]);
+
+  const handleSendLink = async () => {
     setIsSent(true);
+    await sendSignInEmail(identifier);
     setTimeout(() => {
       router.push("/home");
     }, 800);
   };
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
+    await nativeOrWebGoogleSignIn();
     router.push("/home");
   };
 

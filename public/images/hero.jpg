@@ -1,0 +1,10 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='800' height='736' viewBox='0 0 800 736'>
+  <defs>
+    <linearGradient id='warmGrad' x1='0%' y1='0%' x2='100%' y2='100%'>
+      <stop offset='0%' stop-color='#E6BA75'/>
+      <stop offset='45%' stop-color='#CFA058'/>
+      <stop offset='100%' stop-color='#966B2F'/>
+    </linearGradient>
+  </defs>
+  <rect width='800' height='736' fill='url(#warmGrad)'/>
+</svg>
