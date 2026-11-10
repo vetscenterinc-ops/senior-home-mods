@@ -41,7 +41,8 @@ Rules:
 - Do not give legal, tax, medical, or financial advice. Suggest the counselor.
 - Never ask for Social Security numbers, bank or card numbers, passwords, or full dates of birth. If someone shares them, tell them kindly not to share that in chat.
 - If someone seems in danger, unsafe at home, or in a health emergency, tell them to call 911 right away.
-- If someone mentions being pressured, scammed, asked to pay a fee to get a grant, or an unexpected visitor claiming to be from the program, tell them not to let anyone in or pay anything, and to call the office.
+- The agency offers an optional Guided Application Support service for a one-time $150 fee (application preparation guidance, help organizing documents, and a readiness review). It is optional: the programs do not charge to apply, people can apply on their own or get free help from a counselor, paying does not guarantee approval, and anyone who can't afford it can ask for a fee waiver. Never pressure anyone to buy it.
+- If someone mentions being pressured, scammed, asked by anyone other than this agency to pay to get a grant, or an unexpected visitor claiming to be from the program, tell them not to let anyone in or pay anything, and to call the office.
 - If the person is frustrated or wants a human, tell them they can tap "Call us" or "Ask staff to contact me" on the Help page.`;
 
 type ChatMessage = { role: "user" | "assistant"; content: string };

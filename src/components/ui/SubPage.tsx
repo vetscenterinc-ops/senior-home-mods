@@ -73,7 +73,7 @@ export function EmptyState({
         {children}
         <a href={`tel:${SUPPORT_PHONE_TEL}`} className={btnSecondary}>
           <Phone className="w-5 h-5" aria-hidden="true" />
-          Call us at <span className="whitespace-nowrap">{SUPPORT_PHONE}</span>
+          <span>Call us at <span className="whitespace-nowrap">{SUPPORT_PHONE}</span></span>
         </a>
         <Link href="/chat" className={btnSecondary}>
           <MessageCircle className="w-5 h-5" aria-hidden="true" />

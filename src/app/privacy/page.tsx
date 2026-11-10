@@ -29,7 +29,7 @@ export default function PrivacyPage() {
         <section className="space-y-2">
           <h2 className="font-[family-name:var(--font-fraunces)] font-semibold text-[22px]">Questions</h2>
           <a href={`tel:${SUPPORT_PHONE_TEL}`} className="inline-flex items-center gap-2 min-h-[48px] font-bold underline decoration-gold underline-offset-4">
-            <Phone className="w-5 h-5" aria-hidden="true" /> Call us at <span className="whitespace-nowrap">{SUPPORT_PHONE}</span>
+            <Phone className="w-5 h-5" aria-hidden="true" /> <span>Call us at <span className="whitespace-nowrap">{SUPPORT_PHONE}</span></span>
           </a>
         </section>
       </div>

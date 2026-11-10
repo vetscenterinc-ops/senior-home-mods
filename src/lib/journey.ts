@@ -256,7 +256,37 @@ export function useJourney() {
     [mode, user, journey, save]
   );
 
-  return { journey, loading, mode, user, choosePathway, askForStaffHelp, signUp, requestVisit };
+  /**
+   * Ask to enroll in the optional Guided Application Support service.
+   * No payment is taken in the app. Staff contact the homeowner about payment or a fee waiver.
+   */
+  const requestService = useCallback(
+    async (opts: { waiverRequested: boolean }): Promise<{ ok: boolean; message?: string }> => {
+      if (mode !== "cloud" || !user || !db) {
+        return {
+          ok: false,
+          message: `Online sign-up isn't turned on yet. Please call us at ${SUPPORT_PHONE} to sign up or ask about a fee waiver.`,
+        };
+      }
+      try {
+        await addDoc(collection(db, "serviceRequests"), {
+          uid: user.uid,
+          service: "guided_application_support",
+          feeShown: "$150",
+          agreedToTerms: true,
+          waiverRequested: opts.waiverRequested,
+          status: "requested",
+          createdAt: serverTimestamp(),
+        });
+        return { ok: true };
+      } catch {
+        return { ok: false, message: `We couldn't send that. Please try again or call us at ${SUPPORT_PHONE}.` };
+      }
+    },
+    [mode, user]
+  );
+
+  return { journey, loading, mode, user, choosePathway, askForStaffHelp, signUp, requestVisit, requestService };
 }
 
 // ---------- Published sessions (entered by staff) ----------

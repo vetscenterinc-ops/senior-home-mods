@@ -99,9 +99,9 @@ export default function HowItWorksPage() {
         <div className="space-y-4 pt-8">
           <PrimaryButton
             showArrow={true}
-            onPress={() => router.push("/check")}
+            onPress={() => router.push("/assistance-options")}
           >
-            Check my address
+            See my assistance options
           </PrimaryButton>
 
           <div className="text-center text-[17px] text-navy">

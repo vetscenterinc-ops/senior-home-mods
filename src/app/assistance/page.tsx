@@ -24,7 +24,7 @@ export default function AssistancePage() {
           <Video className="w-5 h-5" aria-hidden="true" /> Meet with a counselor
         </Link>
         <a href={`tel:${SUPPORT_PHONE_TEL}`} className={btnSecondary}>
-          <Phone className="w-5 h-5" aria-hidden="true" /> Call us at <span className="whitespace-nowrap">{SUPPORT_PHONE}</span>
+          <Phone className="w-5 h-5" aria-hidden="true" /> <span>Call us at <span className="whitespace-nowrap">{SUPPORT_PHONE}</span></span>
         </a>
         <Link href="/chat" className={btnSecondary}>
           <MessageCircle className="w-5 h-5" aria-hidden="true" /> Ask our helper

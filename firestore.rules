@@ -70,6 +70,18 @@ service cloud.firestore {
       allow update, delete: if isStaff();
     }
 
+    // Optional paid service requests. The homeowner must agree to the shown terms.
+    // No payment happens here; staff follow up about payment or a fee waiver.
+    match /serviceRequests/{id} {
+      allow read: if isStaff() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'requested'
+        && request.resource.data.agreedToTerms == true
+        && request.resource.data.waiverRequested is bool;
+      allow update, delete: if isStaff();
+    }
+
     // Document records: only when the journey is verified complete, or staff granted an exception.
     function docsOpen(uid) {
       let j = get(/databases/$(database)/documents/journeys/$(uid)).data;
