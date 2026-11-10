@@ -19,7 +19,6 @@
     "@capacitor/core": "^7.6.10",
     "@capacitor/network": "^7.0.4",
     "firebase": "^11.4.0",
-    "lightningcss-darwin-arm64": "^1.33.0",
     "lucide-react": "^1.16.0",
     "next": "^15.2.1",
     "react": "^19.0.0",
