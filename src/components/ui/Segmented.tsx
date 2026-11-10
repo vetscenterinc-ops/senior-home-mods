@@ -41,7 +41,7 @@ export function Segmented<T extends string = string>({
               aria-checked={isSelected}
               onClick={() => onChange(opt.value)}
               className={`
-                flex-1 inline-flex items-center justify-center gap-2 h-[48px] min-h-[48px] px-4 rounded-full
+                flex-1 inline-flex items-center justify-center gap-1.5 h-[48px] min-h-[48px] px-3 rounded-full whitespace-nowrap
                 text-[17px] font-bold tracking-tight transition-all cursor-pointer select-none
                 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-focus focus-visible:ring-offset-2
                 ${

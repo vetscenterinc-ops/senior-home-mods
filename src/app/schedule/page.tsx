@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { TopBar } from "@/components/ui/TopBar";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -9,22 +9,49 @@ import { Segmented } from "@/components/ui/Segmented";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { Check } from "lucide-react";
 
+type MeetingType = "phone" | "video" | "inperson";
+
+const NOTES: Record<MeetingType, string> = {
+  phone: "Your counselor will call you at the phone number you gave us.",
+  video: "We'll text and email you a link. Just tap it to join. No app needed.",
+  inperson: "Bring your papers with you. We'll make copies and give the originals back. The office address will be in your text and email.",
+};
+
+// Next 4 weekdays, starting tomorrow
+function nextWeekdays(count: number) {
+  const out: { id: string; dow: string; date: string; long: string }[] = [];
+  const d = new Date();
+  while (out.length < count) {
+    d.setDate(d.getDate() + 1);
+    const day = d.getDay();
+    if (day === 0 || day === 6) continue;
+    out.push({
+      id: d.toISOString().slice(0, 10),
+      dow: d.toLocaleDateString("en-US", { weekday: "short" }),
+      date: String(d.getDate()),
+      long: d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
+    });
+  }
+  return out;
+}
+
 export default function SchedulePage() {
   const router = useRouter();
 
-  const [callType, setCallType] = useState<"video" | "phone">("video");
-  const [selectedDay, setSelectedDay] = useState("Fri 30");
+  const [meetingType, setMeetingType] = useState<MeetingType>("phone");
+  const days = useMemo(() => nextWeekdays(4), []);
+  const [selectedDay, setSelectedDay] = useState(days[1]?.id ?? days[0].id);
   const [selectedTime, setSelectedTime] = useState("10:30 AM");
   const [isBooked, setIsBooked] = useState(false);
 
-  const days = [
-    { dow: "Thu", date: "29", id: "Thu 29" },
-    { dow: "Fri", date: "30", id: "Fri 30" },
-    { dow: "Mon", date: "2", id: "Mon 2" },
-    { dow: "Tue", date: "3", id: "Tue 3" },
-  ];
+  // /schedule?type=inperson preselects an in-person meeting (from the Papers screen)
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("type");
+    if (t === "inperson" || t === "video" || t === "phone") setMeetingType(t);
+  }, []);
 
   const times = ["9:00 AM", "10:30 AM", "1:00 PM", "3:30 PM"];
+  const dayLabel = days.find((d) => d.id === selectedDay)?.long ?? "";
 
   const handleBook = () => {
     setIsBooked(true);
@@ -41,25 +68,24 @@ export default function SchedulePage() {
 
           <div className="space-y-2">
             <Eyebrow>TALK WITH US</Eyebrow>
-            <PageTitle>Book a call with Jordan.</PageTitle>
+            <PageTitle>Meet with your HUD housing counselor.</PageTitle>
+            <p className="text-[17px] text-muted">It&apos;s free. How would you like to meet?</p>
           </div>
 
-          {/* Segmented Call Type (Video / Phone) */}
           <Segmented
-            label="Call Type"
+            label="How would you like to meet?"
             options={[
-              { value: "video", label: "Video (Zoom)" },
-              { value: "phone", label: "Phone call" },
+              { value: "phone", label: "Phone" },
+              { value: "video", label: "Video" },
+              { value: "inperson", label: "In person" },
             ]}
-            value={callType}
-            onChange={(val) => setCallType(val as "video" | "phone")}
+            value={meetingType}
+            onChange={(val) => setMeetingType(val as MeetingType)}
           />
 
-          {/* Day Picker: 4 large day buttons */}
+          {/* Day Picker */}
           <div className="space-y-2">
-            <span className="block font-bold text-[18px] text-navy">
-              Choose a day
-            </span>
+            <span className="block font-bold text-[18px] text-navy">Pick a day</span>
             <div className="grid grid-cols-4 gap-2">
               {days.map((d) => {
                 const isSelected = selectedDay === d.id;
@@ -71,15 +97,12 @@ export default function SchedulePage() {
                     className={`
                       h-[72px] rounded-[16px] flex flex-col items-center justify-center border-2 transition-all cursor-pointer
                       focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-focus
-                      ${
-                        isSelected
-                          ? "bg-navy text-white border-navy shadow-sm"
-                          : "bg-white text-navy border-hairline hover:border-control/60"
-                      }
+                      ${isSelected ? "bg-navy text-white border-navy shadow-sm" : "bg-white text-navy border-hairline hover:border-control/60"}
                     `}
                     aria-pressed={isSelected}
+                    aria-label={d.long}
                   >
-                    <span className="text-[14px] font-semibold opacity-90">{d.dow}</span>
+                    <span className="text-[15px] font-semibold">{d.dow}</span>
                     <span className="text-[22px] font-bold leading-none mt-0.5">{d.date}</span>
                   </button>
                 );
@@ -87,10 +110,10 @@ export default function SchedulePage() {
             </div>
           </div>
 
-          {/* Time Picker: 2-column grid of 56px buttons */}
+          {/* Time Picker */}
           <div className="space-y-2">
             <span className="block font-bold text-[18px] text-navy">
-              Choose a time <span className="text-[16px] text-muted font-normal">(Central time)</span>
+              Pick a time <span className="text-[16px] text-muted font-normal">(Central time)</span>
             </span>
             <div className="grid grid-cols-2 gap-2.5">
               {times.map((t) => {
@@ -103,11 +126,7 @@ export default function SchedulePage() {
                     className={`
                       h-[56px] rounded-[14px] flex items-center justify-center gap-2 border-2 text-[17px] font-bold transition-all cursor-pointer
                       focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-focus
-                      ${
-                        isSelected
-                          ? "bg-sand text-navy border-navy"
-                          : "bg-white text-navy border-hairline hover:border-control/60"
-                      }
+                      ${isSelected ? "bg-sand text-navy border-navy" : "bg-white text-navy border-hairline hover:border-control/60"}
                     `}
                     aria-pressed={isSelected}
                   >
@@ -119,18 +138,12 @@ export default function SchedulePage() {
             </div>
           </div>
 
-          {/* Note */}
-          <p className="text-[15px] text-muted leading-relaxed">
-            We&apos;ll email and text you the Zoom link. One tap to join, no app needed.
-          </p>
+          <p className="text-[16px] text-muted leading-relaxed">{NOTES[meetingType]}</p>
         </div>
 
-        {/* Dynamic Booking Button */}
         <div className="pt-8">
           <PrimaryButton onPress={handleBook}>
-            {isBooked
-              ? "Appointment Booked!"
-              : `Book ${selectedDay === "Fri 30" ? "Fri, Oct 30" : selectedDay} at ${selectedTime}`}
+            {isBooked ? "You're all set!" : `Confirm ${dayLabel} at ${selectedTime}`}
           </PrimaryButton>
         </div>
       </main>

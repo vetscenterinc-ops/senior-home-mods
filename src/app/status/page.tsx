@@ -8,46 +8,20 @@ import { BottomTabBar } from "@/components/ui/BottomTabBar";
 import { Check, Phone, Calendar } from "lucide-react";
 
 export default function StatusPage() {
-  const steps = [
-    {
-      num: 1,
-      name: "Application received",
-      status: "done",
-      date: "Oct 12",
-    },
+  const steps: { num: number; name: string; status: string; date?: string; appointment?: string; desc?: string; sub?: string }[] = [
+    { num: 1, name: "We got your form", status: "done", date: "Nov 9" },
     {
       num: 2,
-      name: "Eligibility reviewed",
-      status: "done",
-      date: "Oct 16",
-    },
-    {
-      num: 3,
-      name: "Home visit",
+      name: "Talk with your counselor",
       status: "current",
-      appointment: "Tue, Nov 3 at 10:30 AM",
-      desc: "Jordan will look at the bathroom and take measurements. About 45 minutes.",
+      appointment: "Call not set up yet",
+      desc: "A free call with a HUD housing counselor. They'll explain the program and which papers you need.",
     },
-    {
-      num: 4,
-      name: "Contractor assigned",
-      status: "upcoming",
-    },
-    {
-      num: 5,
-      name: "Work in progress",
-      status: "upcoming",
-    },
-    {
-      num: 6,
-      name: "Final inspection",
-      status: "upcoming",
-    },
-    {
-      num: 7,
-      name: "Complete, enjoy your home",
-      status: "upcoming",
-    },
+    { num: 3, name: "Send your papers", status: "upcoming", sub: "Online class or in-person meeting" },
+    { num: 4, name: "Home visit", status: "upcoming" },
+    { num: 5, name: "We pick a worker", status: "upcoming" },
+    { num: 6, name: "Work on your home", status: "upcoming" },
+    { num: 7, name: "All done!", status: "upcoming" },
   ];
 
   return (
@@ -55,8 +29,8 @@ export default function StatusPage() {
       <main id="main-content" className="w-full max-w-md mx-auto min-h-screen bg-ivory px-6 py-6 pb-36 space-y-6">
         {/* Header */}
         <div className="space-y-1">
-          <Eyebrow>STEP 3 OF 7</Eyebrow>
-          <PageTitle>Your bathroom safety upgrade</PageTitle>
+          <Eyebrow>STEP 2 OF 7</Eyebrow>
+          <PageTitle>Your safer bathroom</PageTitle>
           <p className="text-[17px] text-muted">
             214 Oak Ridge Rd, Locust Grove
           </p>
@@ -123,7 +97,7 @@ export default function StatusPage() {
                           {step.name}
                         </span>
                         <span className="text-[14px] font-bold text-gold-text">
-                          Active step
+                          Now
                         </span>
                       </div>
 
@@ -132,41 +106,45 @@ export default function StatusPage() {
                         <span>{step.appointment}</span>
                       </div>
 
-                      <p className="text-[15px] text-muted leading-relaxed">
+                      <p className="text-[16px] text-muted leading-relaxed">
                         {step.desc}
                       </p>
 
-                      <div className="flex items-center gap-4 pt-2 border-t border-hairline text-[15px] font-bold">
+                      <div className="flex items-center gap-4 pt-2 border-t border-hairline text-[16px] font-bold">
                         <Link
                           href="/schedule"
-                          className="text-navy underline decoration-gold underline-offset-2 hover:text-navy-hover"
+                          className="min-h-[48px] inline-flex items-center text-navy underline decoration-gold underline-offset-2 hover:text-navy-hover"
                         >
-                          Change time
+                          Pick a time
                         </Link>
                         <a
-                          href="tel:8005550199"
-                          className="inline-flex items-center gap-1 text-navy underline decoration-gold underline-offset-2 hover:text-navy-hover"
+                          href="tel:+18005550199"
+                          className="min-h-[48px] inline-flex items-center gap-1 text-navy underline decoration-gold underline-offset-2 hover:text-navy-hover"
                         >
                           <Phone className="w-3.5 h-3.5" aria-hidden="true" />
-                          <span>Call Jordan</span>
+                          <span>Call us</span>
                         </a>
                       </div>
                     </div>
                   ) : (
                     /* Normal step row */
-                    <div className="flex items-center justify-between pt-0.5">
-                      <span
-                        className={`text-[17px] font-bold leading-snug ${
-                          isDone ? "text-navy" : "text-muted font-medium"
-                        }`}
-                      >
-                        {step.name}
-                      </span>
-                      {step.date && (
-                        <span className="text-[14px] font-semibold text-gold-text ml-2 shrink-0">
-                          {step.date}
+                    <div className="pt-0.5">
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`text-[18px] font-bold leading-snug ${
+                            isDone ? "text-navy" : "text-muted font-medium"
+                          }`}
+                        >
+                          {step.name}
+                          {isDone && <span className="sr-only">, done</span>}
                         </span>
-                      )}
+                        {step.date && (
+                          <span className="text-[15px] font-semibold text-gold-text ml-2 shrink-0">
+                            {step.date}
+                          </span>
+                        )}
+                      </div>
+                      {step.sub && <p className="text-[16px] text-muted">{step.sub}</p>}
                     </div>
                   )}
                 </div>

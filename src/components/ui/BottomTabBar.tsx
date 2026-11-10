@@ -22,7 +22,7 @@ export function BottomTabBar({
 
   const tabs: TabItem[] = [
     { name: "Home", href: "/home", icon: Home },
-    { name: "Documents", href: "/documents", icon: FileText },
+    { name: "Papers", href: "/documents", icon: FileText },
     { name: "Status", href: "/status", icon: CheckCircle2 },
     { name: "Profile", href: "/profile", icon: User },
   ];
