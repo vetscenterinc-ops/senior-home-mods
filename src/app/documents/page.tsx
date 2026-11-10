@@ -23,8 +23,8 @@ export default function DocumentsPage() {
 
   const usdaNote = (
     <p className="text-[16px] text-muted leading-relaxed">
-      You can always contact USDA or other programs yourself.{" "}
-      <Link href="/usda-office" className="font-bold text-navy underline decoration-gold underline-offset-4">Find my USDA office</Link>
+      You can always contact your local USDA office or other programs yourself.{" "}
+      <Link href="/usda-office" className="font-bold text-navy underline decoration-gold underline-offset-4">Find a local office</Link>
     </p>
   );
 
@@ -44,7 +44,7 @@ export default function DocumentsPage() {
             <Lock className="w-7 h-7" />
           </div>
           <p className="text-[18px] text-navy leading-relaxed">
-            First, complete your counselor meeting, online class, or in-person workshop so we can help you prepare the right paperwork.
+            First, complete your counselor meeting, online class, in-person workshop, or home visit so we can help you prepare the right paperwork.
           </p>
           <div className="space-y-3">
             <Link href="/appointments" className={btnPrimary}>

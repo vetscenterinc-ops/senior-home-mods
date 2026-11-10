@@ -28,7 +28,7 @@ export function BottomTabBar({
   ];
 
   // Screens opened from the More menu keep "More" highlighted.
-  const MORE_ROUTES = ["/more", "/appointments", "/classes", "/events", "/documents", "/applications", "/saved-programs", "/assistance", "/how-it-works", "/usda-office", "/help", "/accessibility", "/profile", "/privacy", "/photos", "/next-step"];
+  const MORE_ROUTES = ["/more", "/appointments", "/classes", "/events", "/documents", "/applications", "/saved-programs", "/assistance", "/how-it-works", "/usda-office", "/help", "/accessibility", "/profile", "/privacy", "/photos", "/next-step", "/home-visit"];
 
   const positionClass = fixed ? "fixed bottom-0 left-0 right-0 z-40" : "relative w-full";
 

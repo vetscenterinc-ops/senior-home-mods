@@ -9,8 +9,8 @@ export default function UsdaOfficePage() {
   return (
     <SubPage
       eyebrow="RESOURCES & SUPPORT"
-      title="Find my USDA office"
-      intro="You can always contact USDA yourself. We're glad to help, but you never have to go through us."
+      title="Find a local office"
+      intro="You can always contact your local USDA office yourself. We're glad to help, but you never have to go through us."
     >
       <div className="rounded-[22px] bg-white border border-hairline p-6 space-y-4 shadow-[0_4px_20px_rgba(60,40,10,0.07)]">
         <div className="w-14 h-14 rounded-full bg-sand text-navy flex items-center justify-center" aria-hidden="true">

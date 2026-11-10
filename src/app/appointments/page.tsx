@@ -32,6 +32,7 @@ export default function AppointmentsPage() {
             {s.startsAt && <li className="flex gap-2"><CalendarDays className="w-5 h-5 mt-0.5 text-gold-text shrink-0" aria-hidden="true" />{fmtWhen(s.startsAt)}</li>}
             {s.mode === "video" && <li className="flex gap-2"><Video className="w-5 h-5 mt-0.5 text-gold-text shrink-0" aria-hidden="true" />Video call. We&apos;ll text you the link.</li>}
             {s.mode === "phone" && <li className="flex gap-2"><Phone className="w-5 h-5 mt-0.5 text-gold-text shrink-0" aria-hidden="true" />Your counselor will call you.</li>}
+            {s.mode === "home" && <li className="flex gap-2"><MapPin className="w-5 h-5 mt-0.5 text-gold-text shrink-0" aria-hidden="true" />At your home. Our team member will show a photo ID badge.</li>}
             {s.location && <li className="flex gap-2"><MapPin className="w-5 h-5 mt-0.5 text-gold-text shrink-0" aria-hidden="true" />{s.location}</li>}
           </ul>
           <p className={`text-[17px] font-bold inline-flex items-center gap-2 ${verified ? "text-leaf-text" : "text-navy"}`}>

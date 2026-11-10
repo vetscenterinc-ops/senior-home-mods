@@ -6,10 +6,10 @@ import { Logo } from "@/components/ui/Logo";
 import { PageTitle } from "@/components/ui/PageTitle";
 import { BottomTabBar } from "@/components/ui/BottomTabBar";
 import { btnSecondary } from "@/components/ui/SubPage";
-import { Calendar, Camera, Lock, FileCheck2, MapPin, Video, Phone, ArrowRight, MessageCircle } from "lucide-react";
+import { Calendar, Camera, Lock, FileCheck2, MapPin, Video, Phone, ArrowRight, MessageCircle, House } from "lucide-react";
 import { useJourney, PATHWAYS, canSubmitDocuments, fmtWhen, statusLabel } from "@/lib/journey";
 
-const MODE_ICON = { video: Video, phone: Phone, in_person: MapPin } as const;
+const MODE_ICON = { video: Video, phone: Phone, in_person: MapPin, home: House } as const;
 
 export default function HomePage() {
   const { journey, loading } = useJourney();
@@ -30,8 +30,16 @@ export default function HomePage() {
       href: "/next-step",
       button: "See my options",
     };
+  } else if (journey.status === "not_selected" && journey.pathway === "home_visit" && journey.requestedAt) {
+    next = { label: "WE'RE ON IT", title: "We'll call you to set a time", text: "You asked for an in-home visit. Our team will call you soon.", href: "/home-visit", button: "See my request" };
   } else if (journey.status === "not_selected") {
-    next = { label: "TO DO NEXT", title: path.action, text: `You chose: ${path.title}.`, href: path.href, button: "Pick a time" };
+    next = {
+      label: "TO DO NEXT",
+      title: path.action,
+      text: `You chose: ${path.title}.`,
+      href: path.href,
+      button: journey.pathway === "home_visit" ? "Request my visit" : "Pick a time",
+    };
   } else if (docsOpen) {
     next = { label: "TO DO NEXT", title: "Send your papers", text: "Your session is done and checked by our staff. You can send your papers now.", href: "/documents", button: "Send my papers" };
   } else if (journey.status === "needs_staff") {
@@ -41,7 +49,7 @@ export default function HomePage() {
   } else {
     next = {
       label: "TO DO NEXT",
-      title: journey.pathway === "class" ? "Finish your class" : "Go to your session",
+      title: journey.pathway === "class" ? "Finish your class" : journey.pathway === "home_visit" ? "Get ready for your home visit" : "Go to your session",
       text: session?.startsAt ? fmtWhen(session.startsAt) : "We'll send you a reminder.",
       href: "/appointments",
       button: "See the details",
@@ -121,7 +129,7 @@ export default function HomePage() {
           <div>
             <div className="font-bold text-[18px] text-navy">Your papers</div>
             <div className={`text-[16px] ${docsOpen ? "text-leaf-text font-semibold" : "text-muted"}`}>
-              {docsOpen ? "Open. You can send them now." : "Opens after your session is done and checked by our staff"}
+              {docsOpen ? "Open. You can send them now." : "Opens after your session or visit is checked by our staff"}
             </div>
           </div>
         </Link>

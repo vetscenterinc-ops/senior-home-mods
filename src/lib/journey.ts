@@ -28,9 +28,9 @@ import {
 import { auth, db } from "./firebase";
 import { isFirebaseConfigured, SUPPORT_PHONE } from "./config";
 
-export type PathwayType = "counselor" | "class" | "event";
+export type PathwayType = "counselor" | "class" | "event" | "home_visit";
 export type PathwayStatus = "not_selected" | "scheduled" | "in_progress" | "completed" | "needs_staff";
-export type MeetingMode = "video" | "phone" | "in_person";
+export type MeetingMode = "video" | "phone" | "in_person" | "home";
 
 export interface Session {
   itemId: string;
@@ -49,6 +49,8 @@ export interface Journey {
   verified: { by: string; at: string } | null;
   /** Set by staff only, with a reason. */
   docsException: { by: string; reason: string; at: string } | null;
+  /** When the homeowner asked for an in-home visit (staff then set the time). */
+  requestedAt?: string | null;
 }
 
 export const EMPTY_JOURNEY: Journey = {
@@ -63,11 +65,13 @@ export const PATHWAYS: Record<PathwayType, { title: string; short: string; href:
   counselor: { title: "Meet with a housing counselor", short: "Counselor meeting", href: "/schedule", action: "Set up your meeting" },
   class: { title: "Take an online class", short: "Online class", href: "/classes", action: "Sign up for a class" },
   event: { title: "Attend an in-person event", short: "In-person event", href: "/events", action: "Sign up for an event" },
+  home_visit: { title: "Request an in-home visit", short: "In-home visit", href: "/home-visit", action: "Request your visit" },
 };
 
 export function statusLabel(j: Journey): string {
   switch (j.status) {
     case "not_selected":
+      if (j.pathway === "home_visit" && j.requestedAt) return "Requested. We'll call you to set a time";
       return j.pathway ? "Not scheduled yet" : "Not selected";
     case "scheduled":
       return j.pathway === "class" ? "Enrolled" : "Scheduled";
@@ -102,7 +106,7 @@ function readDevice(): Journey {
     if (!raw) return EMPTY_JOURNEY;
     const p = JSON.parse(raw);
     // On this device we only remember the choice. Bookings and verification live in the cloud.
-    const pathway = p.pathway === "counselor" || p.pathway === "class" || p.pathway === "event" ? p.pathway : null;
+    const pathway = ["counselor", "class", "event", "home_visit"].includes(p.pathway) ? (p.pathway as PathwayType) : null;
     const status: PathwayStatus = p.status === "needs_staff" ? "needs_staff" : "not_selected";
     return { ...EMPTY_JOURNEY, pathway, status };
   } catch {
@@ -137,6 +141,7 @@ function fromCloud(data: Record<string, unknown> | undefined): Journey {
     session: s ? { ...s, startsAt: toIso(s.startsAt) } : null,
     verified: v?.by ? { by: v.by, at: toIso(v.at) ?? "" } : null,
     docsException: e?.by && e?.reason ? { by: e.by, reason: e.reason, at: toIso(e.at) ?? "" } : null,
+    requestedAt: toIso(data.requestedAt) ?? null,
   };
 }
 
@@ -177,7 +182,7 @@ export function useJourney() {
       if (mode === "cloud" && user && db) {
         await setDoc(
           doc(db, "journeys", user.uid),
-          { pathway: next.pathway, status: next.status, session: next.session, updatedAt: serverTimestamp() },
+          { pathway: next.pathway, status: next.status, session: next.session, requestedAt: next.requestedAt ?? null, updatedAt: serverTimestamp() },
           { merge: true }
         );
       } else {
@@ -189,7 +194,7 @@ export function useJourney() {
 
   /** Choosing (or changing) a pathway clears any earlier booking. It never marks anything completed. */
   const choosePathway = useCallback(
-    (pathway: PathwayType) => save({ ...journey, pathway, status: "not_selected", session: null }),
+    (pathway: PathwayType) => save({ ...journey, pathway, status: "not_selected", session: null, requestedAt: null }),
     [journey, save]
   );
 
@@ -223,7 +228,35 @@ export function useJourney() {
     [mode, user, journey, save]
   );
 
-  return { journey, loading, mode, user, choosePathway, askForStaffHelp, signUp };
+  /** Ask for an in-home visit. Staff call to set the time, then schedule and later verify it. */
+  const requestVisit = useCallback(
+    async (details: { days: string[]; timeOfDay: string; notes: string; photoConsent: boolean }): Promise<{ ok: boolean; message?: string }> => {
+      if (mode !== "cloud" || !user || !db) {
+        return {
+          ok: false,
+          message: `Online requests aren't turned on yet. Please call us at ${SUPPORT_PHONE} and we'll set up your visit.`,
+        };
+      }
+      try {
+        await addDoc(collection(db, "visitRequests"), {
+          uid: user.uid,
+          days: details.days,
+          timeOfDay: details.timeOfDay,
+          notes: details.notes.slice(0, 1000),
+          photoConsent: details.photoConsent,
+          status: "requested",
+          createdAt: serverTimestamp(),
+        });
+        await save({ ...journey, pathway: "home_visit", status: "not_selected", session: null, requestedAt: new Date().toISOString() });
+        return { ok: true };
+      } catch {
+        return { ok: false, message: `We couldn't send that. Please try again or call us at ${SUPPORT_PHONE}.` };
+      }
+    },
+    [mode, user, journey, save]
+  );
+
+  return { journey, loading, mode, user, choosePathway, askForStaffHelp, signUp, requestVisit };
 }
 
 // ---------- Published sessions (entered by staff) ----------

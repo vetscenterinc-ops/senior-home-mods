@@ -7,11 +7,12 @@ import { SubPage, EmptyState, btnPrimary } from "@/components/ui/SubPage";
 import { Segmented } from "@/components/ui/Segmented";
 import { useJourney, listPublished, fmtWhen, type MeetingMode, type MeetingSlot } from "@/lib/journey";
 
-const MODE_LABEL: Record<MeetingMode, string> = { video: "Video", phone: "Phone", in_person: "In person" };
+const MODE_LABEL: Record<MeetingMode, string> = { video: "Video", phone: "Phone", in_person: "In person", home: "Home visit" };
 const MODE_NOTE: Record<MeetingMode, string> = {
   video: "We'll text and email you a link. Just tap it to join. No app needed.",
   phone: "Your counselor will call you at the phone number you gave us.",
   in_person: "Bring a photo ID. We'll make copies of any papers you bring and give the originals back.",
+  home: "Our team member will call first and show a photo ID badge.",
 };
 
 export default function SchedulePage() {

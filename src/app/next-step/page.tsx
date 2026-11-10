@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Video, GraduationCap, Users, Check, MessageCircle } from "lucide-react";
+import { Video, GraduationCap, Users, House, Check, MessageCircle } from "lucide-react";
 import { SubPage, btnPrimary } from "@/components/ui/SubPage";
 import { useJourney, PATHWAYS, type PathwayType } from "@/lib/journey";
 
@@ -31,6 +31,14 @@ const OPTIONS: { type: PathwayType; icon: React.ElementType; title: string; text
     text: "Join a local workshop and get help understanding the application process.",
     detail: "Meet our team and other homeowners.",
     button: "Find an Event Near Me",
+  },
+  {
+    type: "home_visit",
+    icon: House,
+    title: "Request an in-home visit",
+    text: "An authorized team member can visit your home, take photographs of repair concerns with your permission, and help collect the documents needed for your application.",
+    detail: "Helpful if it's hard to get out.",
+    button: "Request a Home Visit",
   },
 ];
 

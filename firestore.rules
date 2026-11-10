@@ -60,6 +60,16 @@ service cloud.firestore {
       allow update, delete: if isStaff();
     }
 
+    // In-home visit requests. The homeowner asks; staff schedule, visit, and verify.
+    match /visitRequests/{id} {
+      allow read: if isStaff() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'requested'
+        && request.resource.data.photoConsent is bool;
+      allow update, delete: if isStaff();
+    }
+
     // Document records: only when the journey is verified complete, or staff granted an exception.
     function docsOpen(uid) {
       let j = get(/databases/$(database)/documents/journeys/$(uid)).data;

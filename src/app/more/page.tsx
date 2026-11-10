@@ -30,7 +30,7 @@ const SECTIONS: { title: string; items: Item[] }[] = [
     title: "Resources & Support",
     items: [
       { label: "Program Information", href: "/how-it-works", icon: Info },
-      { label: "Find My USDA Office", href: "/usda-office", icon: Landmark },
+      { label: "Find a Local Office", href: "/usda-office", icon: Landmark },
       { label: "Help & Support", href: "/help", icon: LifeBuoy },
       { label: "Accessibility Settings", href: "/accessibility", icon: Accessibility },
     ],
