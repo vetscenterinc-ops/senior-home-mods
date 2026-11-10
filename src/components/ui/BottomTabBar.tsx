@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, FileText, CheckCircle2, User } from "lucide-react";
+import { Home, ListChecks, MessageCircle, Menu } from "lucide-react";
 
 export interface TabItem {
   name: string;
@@ -22,10 +22,13 @@ export function BottomTabBar({
 
   const tabs: TabItem[] = [
     { name: "Home", href: "/home", icon: Home },
-    { name: "Papers", href: "/documents", icon: FileText },
-    { name: "Status", href: "/status", icon: CheckCircle2 },
-    { name: "Profile", href: "/profile", icon: User },
+    { name: "Progress", href: "/status", icon: ListChecks },
+    { name: "Messages", href: "/chat", icon: MessageCircle },
+    { name: "More", href: "/more", icon: Menu },
   ];
+
+  // Screens opened from the More menu keep "More" highlighted.
+  const MORE_ROUTES = ["/more", "/appointments", "/classes", "/events", "/documents", "/applications", "/saved-programs", "/assistance", "/how-it-works", "/usda-office", "/help", "/accessibility", "/profile", "/privacy", "/photos", "/next-step"];
 
   const positionClass = fixed ? "fixed bottom-0 left-0 right-0 z-40" : "relative w-full";
 
@@ -41,7 +44,7 @@ export function BottomTabBar({
       <div className="w-full max-w-md mx-auto flex items-center justify-between">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const isActive = pathname === tab.href;
+          const isActive = tab.href === "/more" ? MORE_ROUTES.some((r) => pathname === r || pathname?.startsWith(r + "/")) : pathname === tab.href;
 
           return (
             <Link
@@ -64,7 +67,7 @@ export function BottomTabBar({
               >
                 <Icon className="w-6 h-6 stroke-[2]" />
               </div>
-              <span className="text-[13px] tracking-tight leading-none">
+              <span className="text-[15px] tracking-tight leading-none">
                 {tab.name}
               </span>
               <span className="sr-only">{isActive ? "(Current page)" : ""}</span>

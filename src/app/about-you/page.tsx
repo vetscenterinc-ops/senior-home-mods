@@ -26,7 +26,7 @@ export default function AboutYouPage() {
   const calculatedAge = 2026 - (parseInt(year, 10) || 1952);
 
   const handleSave = () => {
-    router.push("/home");
+    router.push("/next-step");
   };
 
   return (

@@ -2,166 +2,118 @@
 
 import React, { useRef, useState } from "react";
 import Link from "next/link";
-import { Eyebrow } from "@/components/ui/Eyebrow";
-import { PageTitle } from "@/components/ui/PageTitle";
-import { Card } from "@/components/ui/Card";
-import { BottomTabBar } from "@/components/ui/BottomTabBar";
-import { ShieldCheck, Check, Camera, Upload, Laptop, Users, Phone } from "lucide-react";
+import { ShieldCheck, Check, Camera, Upload, Lock, CalendarDays, RefreshCw, LifeBuoy } from "lucide-react";
+import { SubPage, btnPrimary, btnSecondary } from "@/components/ui/SubPage";
+import { useJourney, canSubmitDocuments } from "@/lib/journey";
 
-// Link to the online class. Set NEXT_PUBLIC_ONLINE_CLASS_URL in .env.local when you have it.
-const ONLINE_CLASS_URL = process.env.NEXT_PUBLIC_ONLINE_CLASS_URL || "";
-
-export default function PapersPage() {
+export default function DocumentsPage() {
+  const { journey, loading } = useJourney();
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const [picked, setPicked] = useState<string | null>(null);
 
-  const papers = [
-    { id: "photo-id", title: "Photo ID", received: true, detail: "Got it Nov 9" },
-    { id: "deed", title: "Home deed", received: false, detail: "Shows you own the home" },
-    { id: "income", title: "Proof of income", received: false, detail: "Like a Social Security letter" },
-    { id: "doctor", title: "Doctor's letter", received: false, detail: "Only if you have one" },
-  ];
+  const open = canSubmitDocuments(journey);
 
+  // Real upload to private storage is connected in the backend phase (Firebase Storage + rules).
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setUploadStatus(`Sent: ${file.name}`);
-      setTimeout(() => setUploadStatus(null), 4000);
-    }
+    if (file) setPicked(file.name);
+    e.target.value = "";
   };
 
-  return (
-    <div className="w-full min-h-screen bg-ivory flex flex-col items-center">
-      <main id="main-content" className="w-full max-w-md mx-auto min-h-screen bg-ivory px-6 py-6 pb-36 space-y-6">
-        <div className="space-y-2">
-          <Eyebrow>YOUR PAPERS</Eyebrow>
-          <PageTitle>Send your papers</PageTitle>
-          <p className="text-[17px] text-muted leading-relaxed">
-            Your HUD housing counselor will tell you which papers you need. Choose the way that&apos;s easiest for you.
+  const usdaNote = (
+    <p className="text-[16px] text-muted leading-relaxed">
+      You can always contact USDA or other programs yourself.{" "}
+      <Link href="/usda-office" className="font-bold text-navy underline decoration-gold underline-offset-4">Find my USDA office</Link>
+    </p>
+  );
+
+  if (loading) {
+    return (
+      <SubPage eyebrow="MY DOCUMENTS" title="Your papers">
+        <p className="text-[17px] text-muted" role="status">Loading…</p>
+      </SubPage>
+    );
+  }
+
+  if (!open) {
+    return (
+      <SubPage eyebrow="MY DOCUMENTS" title="You're almost ready to submit your documents.">
+        <div className="rounded-[22px] bg-white border border-hairline p-6 space-y-5 shadow-[0_4px_20px_rgba(60,40,10,0.07)]">
+          <div className="w-14 h-14 rounded-full bg-sand text-navy flex items-center justify-center" aria-hidden="true">
+            <Lock className="w-7 h-7" />
+          </div>
+          <p className="text-[18px] text-navy leading-relaxed">
+            First, complete your counselor meeting, online class, or in-person workshop so we can help you prepare the right paperwork.
           </p>
-        </div>
-
-        {/* Option 1: online class */}
-        <Card className="p-5 space-y-4">
-          <div className="flex items-start gap-3">
-            <div className="w-12 h-12 rounded-full bg-sand text-navy flex items-center justify-center shrink-0" aria-hidden="true">
-              <Laptop className="w-6 h-6 stroke-[2]" />
-            </div>
-            <div className="space-y-1">
-              <h2 className="font-bold text-[19px] text-navy leading-snug">Take the online class</h2>
-              <p className="text-[16px] text-muted leading-relaxed">
-                Learn about the program at your own pace. You can send your papers at the end.
-              </p>
-            </div>
-          </div>
-          {ONLINE_CLASS_URL ? (
-            <a
-              href={ONLINE_CLASS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full h-[56px] rounded-[14px] bg-navy text-white font-bold text-[18px] flex items-center justify-center gap-2 hover:bg-navy-hover transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-focus"
-            >
-              Start the class
-            </a>
-          ) : (
-            <a
-              href="tel:+18005550199"
-              className="w-full h-[56px] rounded-[14px] bg-navy text-white font-bold text-[18px] flex items-center justify-center gap-2 hover:bg-navy-hover transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-focus"
-            >
-              <Phone className="w-5 h-5" aria-hidden="true" />
-              Call us for the class link
-            </a>
-          )}
-        </Card>
-
-        {/* Option 2: in person */}
-        <Card className="p-5 space-y-4">
-          <div className="flex items-start gap-3">
-            <div className="w-12 h-12 rounded-full bg-sand text-navy flex items-center justify-center shrink-0" aria-hidden="true">
-              <Users className="w-6 h-6 stroke-[2]" />
-            </div>
-            <div className="space-y-1">
-              <h2 className="font-bold text-[19px] text-navy leading-snug">Meet in person</h2>
-              <p className="text-[16px] text-muted leading-relaxed">
-                Bring your papers to a meeting with your counselor. We&apos;ll make copies for you.
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/schedule?type=inperson"
-            className="w-full h-[56px] rounded-[14px] bg-white border-2 border-navy text-navy font-bold text-[18px] flex items-center justify-center gap-2 hover:bg-sand transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-focus"
-          >
-            Set up a meeting
-          </Link>
-        </Card>
-
-        {/* What to have ready */}
-        <div className="space-y-3">
-          <h2 className="font-[family-name:var(--font-fraunces)] font-semibold text-[22px] text-navy">Papers to have ready</h2>
-          <ul className="rounded-[22px] bg-white border border-hairline divide-y divide-hairline">
-            {papers.map((p) => (
-              <li key={p.id} className="p-4 flex items-center gap-3">
-                {p.received ? (
-                  <span className="w-8 h-8 rounded-full bg-leaf text-white flex items-center justify-center shrink-0" aria-hidden="true">
-                    <Check className="w-4 h-4 stroke-[3]" />
-                  </span>
-                ) : (
-                  <span className="w-8 h-8 rounded-full border-2 border-control bg-white shrink-0" aria-hidden="true" />
-                )}
-                <div>
-                  <div className="font-bold text-[18px] text-navy">
-                    {p.title}
-                    {p.received && <span className="sr-only">, received</span>}
-                  </div>
-                  <div className={`text-[16px] ${p.received ? "text-leaf-text font-semibold" : "text-muted"}`}>{p.detail}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Already have them? */}
-        <div className="space-y-3">
-          <h2 className="font-bold text-[18px] text-navy">Already have them? Send them now.</h2>
-
-          <div className="p-4 rounded-[16px] bg-sand border border-hairline flex items-center gap-3 text-[16px] text-navy">
-            <ShieldCheck className="w-6 h-6 text-leaf-text shrink-0 stroke-[2]" aria-hidden="true" />
-            <span>Safe and private. Only your counselor and our team can see them.</span>
-          </div>
-
-          {uploadStatus && (
-            <div role="status" aria-live="polite" className="p-3.5 rounded-[14px] bg-leaf/10 border border-leaf text-leaf-text font-bold text-[16px] flex items-center gap-2">
-              <Check className="w-5 h-5 stroke-[3]" aria-hidden="true" />
-              <span>{uploadStatus}</span>
-            </div>
-          )}
-
-          <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" aria-label="Take a photo of a paper" onChange={handleFileChange} />
-          <input ref={fileInputRef} type="file" className="hidden" aria-label="Choose a file" onChange={handleFileChange} />
-
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => cameraInputRef.current?.click()}
-              className="h-[56px] rounded-[16px] bg-navy text-white font-bold text-[17px] flex items-center justify-center gap-2 hover:bg-navy-hover transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-focus"
-            >
-              <Camera className="w-5 h-5" aria-hidden="true" />
-              <span>Take a photo</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="h-[56px] rounded-[16px] bg-white border-2 border-navy text-navy font-bold text-[17px] flex items-center justify-center gap-2 hover:bg-sand transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-focus"
-            >
-              <Upload className="w-5 h-5" aria-hidden="true" />
-              <span>Choose file</span>
-            </button>
+          <div className="space-y-3">
+            <Link href="/appointments" className={btnPrimary}>
+              <CalendarDays className="w-5 h-5" aria-hidden="true" />
+              View My Scheduled Session
+            </Link>
+            <Link href="/next-step" className={btnSecondary}>
+              <RefreshCw className="w-5 h-5" aria-hidden="true" />
+              Choose a Different Option
+            </Link>
+            <Link href="/help" className={btnSecondary}>
+              <LifeBuoy className="w-5 h-5" aria-hidden="true" />
+              Contact Support
+            </Link>
           </div>
         </div>
-      </main>
+        <p className="text-[16px] text-muted leading-relaxed">
+          Need to send papers sooner, or need another way to send them? Our staff can help. Just contact support.
+        </p>
+        {usdaNote}
+      </SubPage>
+    );
+  }
 
-      <BottomTabBar />
-    </div>
+  const papers = [
+    { id: "id", title: "Photo ID" },
+    { id: "deed", title: "Home deed", detail: "Shows you own the home" },
+    { id: "income", title: "Proof of income", detail: "Like a Social Security letter" },
+    { id: "doctor", title: "Doctor's letter", detail: "Only if you have one" },
+  ];
+
+  return (
+    <SubPage
+      eyebrow="MY DOCUMENTS"
+      title="Send your papers"
+      intro={journey.docsException ? "Our staff opened this for you." : "Your session is done and checked. Send the papers your counselor asked for."}
+    >
+      <div className="p-4 rounded-[16px] bg-sand border border-hairline flex items-center gap-3 text-[16px] text-navy">
+        <ShieldCheck className="w-6 h-6 text-leaf-text shrink-0 stroke-[2]" aria-hidden="true" />
+        <span>Safe and private. Only your counselor and our team can see them.</span>
+      </div>
+
+      <ul className="rounded-[22px] bg-white border border-hairline divide-y divide-hairline">
+        {papers.map((p) => (
+          <li key={p.id} className="p-4">
+            <div className="font-bold text-[18px] text-navy">{p.title}</div>
+            {p.detail && <div className="text-[16px] text-muted">{p.detail}</div>}
+          </li>
+        ))}
+      </ul>
+
+      {picked && (
+        <p role="status" aria-live="polite" className="p-4 rounded-[14px] bg-sand border border-hairline text-[17px] text-navy flex gap-2">
+          <Check className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
+          Picked: {picked}. Sending to your private file will be turned on soon. For now, bring it to your counselor or call us.
+        </p>
+      )}
+
+      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" aria-label="Take a photo of a paper" onChange={handleFileChange} />
+      <input ref={fileInputRef} type="file" className="hidden" aria-label="Choose a file" onChange={handleFileChange} />
+      <div className="grid grid-cols-2 gap-3">
+        <button type="button" onClick={() => cameraInputRef.current?.click()} className={btnPrimary}>
+          <Camera className="w-5 h-5" aria-hidden="true" /> Take a photo
+        </button>
+        <button type="button" onClick={() => fileInputRef.current?.click()} className={btnSecondary}>
+          <Upload className="w-5 h-5" aria-hidden="true" /> Choose file
+        </button>
+      </div>
+      {usdaNote}
+    </SubPage>
   );
 }

@@ -12,10 +12,10 @@ import { Phone, Calculator, MapPin, ChevronRight } from "lucide-react";
 export default function NotEligiblePage() {
   const options = [
     {
-      title: "Talk with a counselor",
-      desc: "We know other local programs",
+      title: "Get help finding other programs",
+      desc: "Meet a counselor, take a class, or go to an event",
       icon: Phone,
-      href: "tel:8005550199",
+      href: "/next-step",
     },
     {
       title: "Get a free estimate",

@@ -2,159 +2,73 @@
 
 import React from "react";
 import Link from "next/link";
-import { Eyebrow } from "@/components/ui/Eyebrow";
-import { PageTitle } from "@/components/ui/PageTitle";
-import { BottomTabBar } from "@/components/ui/BottomTabBar";
-import { Check, Phone, Calendar } from "lucide-react";
+import { Check } from "lucide-react";
+import { SubPage } from "@/components/ui/SubPage";
+import { useJourney, PATHWAYS, canSubmitDocuments, statusLabel } from "@/lib/journey";
 
-export default function StatusPage() {
-  const steps: { num: number; name: string; status: string; date?: string; appointment?: string; desc?: string; sub?: string }[] = [
-    { num: 1, name: "We got your form", status: "done", date: "Nov 9" },
+type StageState = "done" | "current" | "upcoming";
+
+export default function ProgressPage() {
+  const { journey } = useJourney();
+  const educationDone = journey.status === "completed" && !!journey.verified;
+  const docsOpen = canSubmitDocuments(journey);
+
+  // Stages after Documents are moved forward by staff once that backend is connected.
+  const stages: { name: string; text: string; state: StageState; link?: { href: string; label: string } }[] = [
+    { name: "Prequalification", text: "Address check and a few questions.", state: "done" },
     {
-      num: 2,
-      name: "Talk with your counselor",
-      status: "current",
-      appointment: "Call not set up yet",
-      desc: "A free call with a HUD housing counselor. They'll explain the program and which papers you need.",
+      name: "Counseling or Education",
+      text: journey.pathway
+        ? `${PATHWAYS[journey.pathway].title}. Status: ${statusLabel(journey)}.`
+        : "Meet with a counselor, take a class, or go to an event.",
+      state: educationDone ? "done" : "current",
+      link: educationDone ? undefined : journey.pathway ? { href: "/appointments", label: "See my session" } : { href: "/next-step", label: "Choose an option" },
     },
-    { num: 3, name: "Send your papers", status: "upcoming", sub: "Online class or in-person meeting" },
-    { num: 4, name: "Home visit", status: "upcoming" },
-    { num: 5, name: "We pick a worker", status: "upcoming" },
-    { num: 6, name: "Work on your home", status: "upcoming" },
-    { num: 7, name: "All done!", status: "upcoming" },
+    {
+      name: "Documents",
+      text: docsOpen ? "Send the papers your counselor asked for." : "Opens after your session is checked by our staff.",
+      state: docsOpen ? "current" : "upcoming",
+      link: docsOpen ? { href: "/documents", label: "Send my papers" } : undefined,
+    },
+    { name: "Staff Review", text: "Our team checks your papers.", state: "upcoming" },
+    { name: "Application Preparation", text: "We help you fill out the application.", state: "upcoming" },
+    { name: "Referral or Submission", text: "We send your application to USDA or another program.", state: "upcoming" },
+    { name: "Follow-Up", text: "We stay with you until the work is done.", state: "upcoming" },
   ];
+  const currentIndex = stages.findIndex((s) => s.state === "current");
 
   return (
-    <div className="w-full min-h-screen bg-ivory flex flex-col items-center">
-      <main id="main-content" className="w-full max-w-md mx-auto min-h-screen bg-ivory px-6 py-6 pb-36 space-y-6">
-        {/* Header */}
-        <div className="space-y-1">
-          <Eyebrow>STEP 2 OF 7</Eyebrow>
-          <PageTitle>Your safer bathroom</PageTitle>
-          <p className="text-[17px] text-muted">
-            214 Oak Ridge Rd, Locust Grove
-          </p>
-        </div>
-
-        {/* Vertical Timeline */}
-        <ol className="space-y-5 relative pl-2 pt-2" aria-label="Project timeline steps">
-          {steps.map((step, idx) => {
-            const isDone = step.status === "done";
-            const isCurrent = step.status === "current";
-            const isUpcoming = step.status === "upcoming";
-
-            return (
-              <li
-                key={step.num}
-                className="flex items-start gap-4 relative"
-                aria-current={isCurrent ? "step" : undefined}
-              >
-                {/* Vertical connecting line */}
-                {idx < steps.length - 1 && (
-                  <div
-                    className="absolute left-[15px] top-[32px] bottom-[-20px] w-[2px] bg-sand-deep"
-                    aria-hidden="true"
-                  />
-                )}
-
-                {/* Step Circle */}
-                <div className="shrink-0 mt-0.5">
-                  {isDone && (
-                    <div
-                      className="w-8 h-8 rounded-full bg-leaf text-white flex items-center justify-center shadow-sm"
-                      aria-hidden="true"
-                    >
-                      <Check className="w-4 h-4 stroke-[3]" />
-                    </div>
-                  )}
-
-                  {isCurrent && (
-                    <div
-                      className="w-8 h-8 rounded-full bg-navy text-white font-bold text-[15px] flex items-center justify-center ring-4 ring-gold/40 shadow-sm"
-                      aria-hidden="true"
-                    >
-                      {step.num}
-                    </div>
-                  )}
-
-                  {isUpcoming && (
-                    <div
-                      className="w-8 h-8 rounded-full bg-white border-2 border-control/50 text-muted font-bold text-[14px] flex items-center justify-center"
-                      aria-hidden="true"
-                    >
-                      {step.num}
-                    </div>
-                  )}
-                </div>
-
-                {/* Step Content */}
-                <div className="flex-1">
-                  {isCurrent ? (
-                    /* Active step card with 2px navy border */
-                    <div className="p-4 rounded-[18px] bg-white border-2 border-navy shadow-sm space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-[19px] text-navy">
-                          {step.name}
-                        </span>
-                        <span className="text-[14px] font-bold text-gold-text">
-                          Now
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2 text-navy font-bold text-[16px]">
-                        <Calendar className="w-4 h-4 text-gold stroke-[2]" aria-hidden="true" />
-                        <span>{step.appointment}</span>
-                      </div>
-
-                      <p className="text-[16px] text-muted leading-relaxed">
-                        {step.desc}
-                      </p>
-
-                      <div className="flex items-center gap-4 pt-2 border-t border-hairline text-[16px] font-bold">
-                        <Link
-                          href="/schedule"
-                          className="min-h-[48px] inline-flex items-center text-navy underline decoration-gold underline-offset-2 hover:text-navy-hover"
-                        >
-                          Pick a time
-                        </Link>
-                        <a
-                          href="tel:+18005550199"
-                          className="min-h-[48px] inline-flex items-center gap-1 text-navy underline decoration-gold underline-offset-2 hover:text-navy-hover"
-                        >
-                          <Phone className="w-3.5 h-3.5" aria-hidden="true" />
-                          <span>Call us</span>
-                        </a>
-                      </div>
-                    </div>
-                  ) : (
-                    /* Normal step row */
-                    <div className="pt-0.5">
-                      <div className="flex items-center justify-between">
-                        <span
-                          className={`text-[18px] font-bold leading-snug ${
-                            isDone ? "text-navy" : "text-muted font-medium"
-                          }`}
-                        >
-                          {step.name}
-                          {isDone && <span className="sr-only">, done</span>}
-                        </span>
-                        {step.date && (
-                          <span className="text-[15px] font-semibold text-gold-text ml-2 shrink-0">
-                            {step.date}
-                          </span>
-                        )}
-                      </div>
-                      {step.sub && <p className="text-[16px] text-muted">{step.sub}</p>}
-                    </div>
-                  )}
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-      </main>
-
-      <BottomTabBar />
-    </div>
+    <SubPage eyebrow={`STEP ${currentIndex + 1} OF 7`} title="Your progress" intro="Here's every step, from start to finish." showBack={false}>
+      <ol className="relative space-y-5" aria-label="Your progress">
+        {stages.map((s, i) => (
+          <li key={s.name} className="relative flex gap-4" aria-current={s.state === "current" ? "step" : undefined}>
+            {i < stages.length - 1 && (
+              <div className={`absolute left-[17px] top-[38px] bottom-[-20px] w-[2px] ${s.state === "done" ? "bg-leaf" : "bg-sand-deep"}`} aria-hidden="true" />
+            )}
+            <div className="shrink-0" aria-hidden="true">
+              {s.state === "done" ? (
+                <div className="w-9 h-9 rounded-full bg-leaf text-white flex items-center justify-center"><Check className="w-5 h-5 stroke-[3]" /></div>
+              ) : s.state === "current" ? (
+                <div className="w-9 h-9 rounded-full bg-navy text-white font-bold text-[16px] flex items-center justify-center ring-4 ring-gold/40">{i + 1}</div>
+              ) : (
+                <div className="w-9 h-9 rounded-full bg-white border-2 border-control text-muted font-bold text-[16px] flex items-center justify-center">{i + 1}</div>
+              )}
+            </div>
+            <div className={`flex-1 ${s.state === "current" ? "p-4 -mt-1 rounded-[18px] bg-white border-2 border-navy" : "pt-1"}`}>
+              <div className={`text-[18px] font-bold ${s.state === "upcoming" ? "text-muted" : "text-navy"}`}>
+                {s.name}
+                <span className="sr-only">{s.state === "done" ? ", done" : s.state === "current" ? ", current step" : ", coming up"}</span>
+              </div>
+              <p className="text-[16px] text-muted leading-relaxed">{s.text}</p>
+              {s.link && (
+                <Link href={s.link.href} className="mt-1 inline-flex items-center min-h-[48px] text-[17px] font-bold text-navy underline decoration-gold underline-offset-4">
+                  {s.link.label}
+                </Link>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </SubPage>
   );
 }
